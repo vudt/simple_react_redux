@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import {addUser} from '../actions/index';
+import {actSubmitForm} from '../actions/index';
+const uuidv4 = require('uuid/v4');
 
 class UserDetail extends Component {
 
     constructor(props){
         super(props)
         this.state = {
+            id: '',
             fullname: '',
             age: ''
         }
@@ -18,72 +20,70 @@ class UserDetail extends Component {
     componentWillMount(){
         // console.log('componentWillMount');
         // console.log(this.props)
-        if (this.props.active_user) {
-            this.setState({
-                fullname: this.props.active_user.fullname,
-                age: this.props.active_user.age
-            })
-        }
+        this.updateItem(this.props.active_user)
+        // if (this.props.active_user) {
+        //     this.setState({
+        //         fullname: this.props.active_user.fullname,
+        //         age: this.props.active_user.age
+        //     })
+        // }
         
         // console.log(this.state)
     }
 
     componentWillReceiveProps(nextProps){
-        console.log('componentWillReceiveProps');
-        console.log(this.props);
-        console.log(nextProps);
-        if (nextProps.add_user) {
-            nextProps.users.push(nextProps.add_user);
-            console.log(nextProps)
-        }
-        
-        if (nextProps.active_user) {
+        this.updateItem(nextProps.active_user)
+        // if (nextProps.active_user) {
+        //     this.setState({
+        //         fullname: nextProps.active_user.fullname,
+        //         age: nextProps.active_user.age
+        //     })
+        // }
+    }
+
+    updateItem(item){
+        if (item !== null) {
             this.setState({
-                fullname: nextProps.active_user.fullname,
-                age: nextProps.active_user.age
+                id: item.id,
+                fullname: item.fullname,
+                age: item.age
             })
         }
     }
 
     handleChange(event){
         this.setState({
-            fullname: event.target.value
+            [event.target.name]: event.target.value 
         }, () => {
             // console.log(this.state.fullname)
         })
-        console.log(event.target.value)
-        // console.log(this.state.fullname)
     }
 
     handleSubmit(event) {
         event.preventDefault();
-        let item = {fullname: this.state.fullname, age: this.state.age}
-        this.props.addUser(item)
-        // console.log(this.props.add_user)
+        let item = {id: this.state.id, fullname: this.state.fullname, age: this.state.age}
+        console.log(item)
+        this.props.actSubmitForm(item)
     }
 
     render () {
-        console.log(this.props)
         return(
             <div>
                 <div className="frm">
                     <form onSubmit={this.handleSubmit}>
-                        <div className="group-item">
+                        <div className="form-group">
                             <label>FullName</label>
-                            <div className="form-item"><input type="text" name="fullname" onChange={this.handleChange} value={this.state.fullname} /></div>
+                            <input type="text" className="form-control" name="fullname" onChange={this.handleChange} value={this.state.fullname} />
                         </div>
-                        <div className="group-item">
+                        <div className="form-group">
                             <label>Age</label>
-                            <div className="form-item"><input type="text" name="age" onChange={this.handleChange} value={this.state.age} /></div>
+                            <input type="text" className="form-control" name="age" onChange={this.handleChange} value={this.state.age} />
                         </div>
-                        <div className="group-item">
-                            <button>Submit</button>
+                        <div className="form-group">
+                            <button className="btn btn-primary">Save <i className="far fa-save"></i></button>
                         </div>
                     </form>
                 </div>
-               
-                {/* <p>FullName: {this.props.active_user.fullname}</p>
-                <p>Age: {this.props.active_user.age}</p> */}
             </div>
         )
     }
@@ -91,15 +91,14 @@ class UserDetail extends Component {
 
 function mapStateToProps(state) {
     return {
-        users: state.users,
         active_user: state.active_user,
-        add_user: state.add_user
+        // add_user: state.add_user
     }
 }
 
 function mapDispatchToProps(dispatch) {
     return bindActionCreators({
-        addUser: addUser
+        actSubmitForm: actSubmitForm
     }, dispatch)
 }
 
