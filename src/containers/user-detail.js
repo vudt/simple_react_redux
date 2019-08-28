@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
+import {addUser} from '../actions/index';
 
 class UserDetail extends Component {
 
@@ -14,8 +16,8 @@ class UserDetail extends Component {
     }
 
     componentWillMount(){
-        console.log('componentWillMount');
-        console.log(this.props)
+        // console.log('componentWillMount');
+        // console.log(this.props)
         if (this.props.active_user) {
             this.setState({
                 fullname: this.props.active_user.fullname,
@@ -23,13 +25,17 @@ class UserDetail extends Component {
             })
         }
         
-        console.log(this.state)
+        // console.log(this.state)
     }
 
     componentWillReceiveProps(nextProps){
+        console.log('componentWillReceiveProps');
         console.log(this.props);
         console.log(nextProps);
-        console.log('componentWillReceiveProps');
+        if (nextProps.add_user) {
+            nextProps.users.push(nextProps.add_user);
+            console.log(nextProps)
+        }
         
         if (nextProps.active_user) {
             this.setState({
@@ -43,7 +49,7 @@ class UserDetail extends Component {
         this.setState({
             fullname: event.target.value
         }, () => {
-            console.log(this.state.fullname)
+            // console.log(this.state.fullname)
         })
         console.log(event.target.value)
         // console.log(this.state.fullname)
@@ -51,12 +57,13 @@ class UserDetail extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        let item = {id: 5, fullname: this.state.fullname, age: this.state.age}
-        console.log(item)
+        let item = {fullname: this.state.fullname, age: this.state.age}
+        this.props.addUser(item)
+        // console.log(this.props.add_user)
     }
 
     render () {
-        console.log(this.state.fullname)
+        console.log(this.props)
         return(
             <div>
                 <div className="frm">
@@ -84,10 +91,18 @@ class UserDetail extends Component {
 
 function mapStateToProps(state) {
     return {
-        active_user: state.active_user
+        users: state.users,
+        active_user: state.active_user,
+        add_user: state.add_user
     }
 }
 
-let UserDetailContainer = connect(mapStateToProps)(UserDetail)
+function mapDispatchToProps(dispatch) {
+    return bindActionCreators({
+        addUser: addUser
+    }, dispatch)
+}
+
+let UserDetailContainer = connect(mapStateToProps, mapDispatchToProps) (UserDetail)
 
 export default UserDetailContainer;
